@@ -1,0 +1,6 @@
+#.vscode
+.vscode
+
+# object files and .exe's
+*.o
+*.exe
