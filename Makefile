@@ -2,20 +2,24 @@ CC := gcc
 CFLAGS := -Wall -Wextra -pedantic -std=c11
 CPPFLAGS := -Isrc/dependencies/include
 LDFLAGS := -Lsrc/dependencies/lib
-LDLIBS := -lglfw3 -lopengl32 -lgdi32
+LDLIBS := -lglfw3 -lopengl32 -lgdi32 -lm
 
 SRC_DIR := src
 BUILD_DIR := build
 
 TARGET := $(BUILD_DIR)\app.exe
-SRC := $(SRC_DIR)\app.c
+SRCS := $(wildcard $(SRC_DIR)/*.c)
+OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 
 .PHONY: all clean run
 
 all: $(TARGET)
 
-$(TARGET): $(SRC) | $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(CPPFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+$(TARGET): $(OBJS) | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(BUILD_DIR):
 	if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
