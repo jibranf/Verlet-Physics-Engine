@@ -5,7 +5,6 @@
 #include "physics.h"
 
 #define PI 3.14159265358979323846
-#define CONTAINER_SIZE 500
 
 static int window_width, window_height;
 
@@ -23,7 +22,7 @@ void init_window(int width, int height) {
 void render_scene(int container, int activeParticles) {
     draw_container(container);
     for (int i = 0; i < activeParticles; i++) {
-        draw_particle(particles[i].curr_position[0], particles[i].curr_position[1]);
+        draw_particle(particles[i].curr_position[0], particles[i].curr_position[1], particles[i].radius);
     }
 }
 
@@ -37,7 +36,8 @@ void draw_container(int container) {
         glVertex2f((window_width/2) + CONTAINER_SIZE, (window_height/2) + CONTAINER_SIZE);
         glVertex2f((window_width/2) - CONTAINER_SIZE, (window_height/2) + CONTAINER_SIZE);
         glEnd();
-    } else if (container == 1) { // draw circle
+    }
+    if (container == 1) { // draw circle
         float theta = PI * 2 / 360.0;
         float tangential_factor = tanf(theta);
         float radial_factor = cosf(theta);
@@ -57,13 +57,13 @@ void draw_container(int container) {
     }
 }
 
-void draw_particle(float x, float y) {
+void draw_particle(float x, float y, float radius) {
     glColor3f(0.5f, 0.8f, 1.0f);  // Light blue color
     glBegin(GL_TRIANGLE_FAN);
     glVertex2f(x, y);
     for (int i = 0; i <= 360; i++) {
         float radian = i * (PI / 180.0f);
-        glVertex2f(x + cos(radian) * PARTICLE_RADIUS, y + sin(radian) * PARTICLE_RADIUS);
+        glVertex2f(x + cos(radian) * radius, y + sin(radian) * radius);
     }
     glEnd();
 }

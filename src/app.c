@@ -8,16 +8,15 @@
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
 
-#define PARTICLE_SPAWN_X 960
-#define PARTICLE_SPAWN_Y 540
+#define PARTICLE_SPAWN_X WINDOW_WIDTH/2
+#define PARTICLE_SPAWN_Y WINDOW_HEIGHT/2
 
 #define TARGET_FPS 60.0
-#define SPAWN_DELAY 0.5
+#define SPAWN_DELAY 0.1
 
 #define SUBSTEPS 8
 
-#define BOX 0 // box container
-#define CIRCLE 1 // circle container
+#define CONTAINER 1 // box = 0, circle = 1
 
 int totalFrames = 0;
 
@@ -58,13 +57,13 @@ int main(void) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
         
-
+        // TODO: figure out how to consolidate this with current dt calculation at bottom
         float currTime = (float)glfwGetTime();
         float deltaTime = currTime - lastTime;
         lastTime = currTime;
         spawnTimer += deltaTime;
         if (spawnTimer >= SPAWN_DELAY && activeParticles < NUM_PARTICLES) {
-            activeParticles += 1;
+            activeParticles += 1; // spawn a particle
             spawnTimer = 0.0;
         }
         // if (1.0 / dt >= TARGET_FPS - 5 && glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS && activeParticles < NUM_PARTICLES) {
@@ -75,12 +74,14 @@ int main(void) {
         float sub_dt = dt / SUBSTEPS;
         for (int i = 0; i < SUBSTEPS; i++) {
             applyGravity(activeParticles);
+            applyContainerConstraints(activeParticles, WINDOW_WIDTH, WINDOW_HEIGHT);
+            detectCollisions(activeParticles);
             updateParticlePositions(activeParticles, sub_dt);
         }
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        render_scene(CIRCLE, activeParticles);
+        render_scene(CONTAINER, activeParticles);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -90,7 +91,6 @@ int main(void) {
             dt = (float)glfwGetTime() - lastFrameTime;
         }
         lastFrameTime = (float)glfwGetTime();
-        totalFrames++;
     }
 
     glfwTerminate();
@@ -98,10 +98,22 @@ int main(void) {
 }
 
 void instantiateParticles(Particle* particle_list, int numParticles) {
+    int distance = 15.0f;
+
     for (int i = 0; i < numParticles; i++) {
+        Particle* p = &(particle_list[i]);
+
+        // ====== DEFAULT ======
+        // mfloat_t x = PARTICLE_SPAWN_X + 300;
+        // mfloat_t y = PARTICLE_SPAWN_Y - 100;
+        // vec2(p->curr_position, x, y);
+        // vec2(p->old_position, x, y);
+        // vec2(p->acceleration, 0, 0);
+        // p->radius = PARTICLE_RADIUS;        
+
+        // ====== DEFAULT ALTERNATING ===========
         mfloat_t x = PARTICLE_SPAWN_X;
         mfloat_t y = PARTICLE_SPAWN_Y;
-        Particle* p = &(particle_list[i]);
         if (i % 2 == 0) {
             x += 200;
         } else {
