@@ -2,7 +2,7 @@ CC := gcc
 CFLAGS := -Wall -Wextra -pedantic -std=c11
 CPPFLAGS := -Isrc/dependencies/include
 LDFLAGS := -Lsrc/dependencies/lib
-LDLIBS := -lglfw3 -lopengl32 -lgdi32 -lm
+LDLIBS := -lglew32 -lglfw3 -lopengl32 -lgdi32 -lm
 
 SRC_DIR := src
 BUILD_DIR := build

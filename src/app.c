@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "renderer.h"
 #include "physics.h"
@@ -66,6 +67,7 @@ int main(void) {
         return -1;
     }
 
+    
     window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Verlet Physics Engine", NULL, NULL);
     if (!window) {
         fprintf(stderr, "Failed to create GLFW window\n");
@@ -74,6 +76,20 @@ int main(void) {
     }
 
     glfwMakeContextCurrent(window);
+
+    // start GLEW extension handler
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
+        fprintf(stderr, "Error initializing GLEW: %s\n", glewGetErrorString(err));
+        return -1;
+    }
+
+    // get version info
+    const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
+    const GLubyte* version = glGetString(GL_VERSION); // version as a string
+    printf("Renderer: %s\n", renderer);
+    printf("OpenGL version supported %s\n", version);
+
     glfwSwapInterval(1);
 
     init_window(WINDOW_WIDTH, WINDOW_HEIGHT);
