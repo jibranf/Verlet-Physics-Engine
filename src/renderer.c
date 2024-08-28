@@ -19,22 +19,15 @@ void init_window(int width, int height) {
     glLoadIdentity();
 }
 
-void render_scene(int container, int activeParticles) {
-    draw_container(container);
-    for (int i = 0; i < activeParticles; i++) {
-        draw_particle(particles[i].curr_position[0], particles[i].curr_position[1], particles[i].radius);
-    }
-}
-
-void draw_container(int container) {
+void draw_container(mfloat_t* containerPos, int container) {
     glColor3f(1.0f, 1.0f, 1.0f);
-    glLineWidth(2);
+    glLineWidth(CONTAINER_BORDER_WIDTH);
     if (container == 0) { // draw box 
         glBegin(GL_LINE_LOOP);
-        glVertex2f((window_width/2) - CONTAINER_SIZE, (window_height/2) - CONTAINER_SIZE);
-        glVertex2f((window_width/2) + CONTAINER_SIZE, (window_height/2) - CONTAINER_SIZE);
-        glVertex2f((window_width/2) + CONTAINER_SIZE, (window_height/2) + CONTAINER_SIZE);
-        glVertex2f((window_width/2) - CONTAINER_SIZE, (window_height/2) + CONTAINER_SIZE);
+        glVertex2f(containerPos[0] - CONTAINER_SIZE, containerPos[1] - CONTAINER_SIZE);
+        glVertex2f(containerPos[0] + CONTAINER_SIZE, containerPos[1] - CONTAINER_SIZE);
+        glVertex2f(containerPos[0] + CONTAINER_SIZE, containerPos[1] + CONTAINER_SIZE);
+        glVertex2f(containerPos[0] - CONTAINER_SIZE, containerPos[1] + CONTAINER_SIZE);
         glEnd();
     }
     if (container == 1) { // draw circle
