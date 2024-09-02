@@ -12,7 +12,8 @@
 #define CIRCLE_SEGMENTS 36
 
 // Shader sources
-const char* vertexShaderSource = "#version 330 core\n"
+const char* vertexShaderSource = 
+"#version 330 core\n"
 "layout(location = 0) in vec2 aVertexPosition;\n"
 "layout(location = 1) in vec2 aInstancePosition;\n"
 "uniform float uRadius;\n"
@@ -23,7 +24,8 @@ const char* vertexShaderSource = "#version 330 core\n"
 "    gl_Position = uProjection * vec4(position, 0.0, 1.0);\n"
 "}\n";
 
-const char* fragmentShaderSource = "#version 330 core\n"
+const char* fragmentShaderSource = 
+"#version 330 core\n"
 "out vec4 FragColor;\n"
 "uniform vec3 uColor;\n"
 "void main()\n"
@@ -37,7 +39,6 @@ static GLuint circleVBO;
 static GLuint instanceVBO;
 static GLuint VAO;
 
-// Function to compile a shader and check for errors
 static GLuint compile_shader(GLenum type, const char* source) {
     GLuint shader = glCreateShader(type);
     glShaderSource(shader, 1, &source, NULL);
@@ -56,7 +57,6 @@ static GLuint compile_shader(GLenum type, const char* source) {
     return shader;
 }
 
-// Function to link shaders into a program and check for errors
 static GLuint link_program(GLuint vertexShader, GLuint fragmentShader) {
     GLuint program = glCreateProgram();
     glAttachShader(program, vertexShader);
@@ -78,6 +78,7 @@ static GLuint link_program(GLuint vertexShader, GLuint fragmentShader) {
 
     return program;
 }
+
 
 // Function to compute orthographic projection matrix
 static void ortho(float left, float right, float bottom, float top, float near, float far, float* matrix) {
@@ -115,7 +116,6 @@ void init_renderer(int window_width, int window_height) {
     glBindVertexArray(VAO);
 
     // Generate circle geometry
-    // Triangle fan: first vertex is center, followed by perimeter vertices
     int numVertices = CIRCLE_SEGMENTS + 2; // +1 for closing the fan
     GLfloat* circleVertices = (GLfloat*)malloc(numVertices * 2 * sizeof(GLfloat));
     if (!circleVertices) {
@@ -173,12 +173,13 @@ void init_renderer(int window_width, int window_height) {
     GLint radiusLoc = glGetUniformLocation(shaderProgram, "uRadius");
     glUniform1f(radiusLoc, PARTICLE_RADIUS);
 
-    // Set color uniform (set to desired color, e.g., white)
+    // Set color uniform to light blue for particles
     GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
-    glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Modify as needed
+    glUniform3f(colorLoc, 0.678f, 0.847f, 0.902f); // Light blue color (RGB: 173, 216, 230)
 
     glUseProgram(0);
 }
+
 
 void draw_container(mfloat_t* containerPos, int containerType) {
     glUseProgram(shaderProgram);
@@ -186,6 +187,8 @@ void draw_container(mfloat_t* containerPos, int containerType) {
     // Set the color to white for the container
     GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
     glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);  // White color
+
+    glLineWidth(CONTAINER_BORDER_WIDTH);
 
     if (containerType == 0) {  // Box
         float halfSize = CONTAINER_SIZE / 2.0f;
@@ -206,6 +209,7 @@ void draw_container(mfloat_t* containerPos, int containerType) {
 
         glDrawArrays(GL_LINE_LOOP, 0, 4);
 
+        glDisableVertexAttribArray(0);
         glDeleteBuffers(1, &boxVBO);
     } else if (containerType == 1) {  // Circle
         int numSegments = 100;
@@ -231,6 +235,7 @@ void draw_container(mfloat_t* containerPos, int containerType) {
 
         glDrawArrays(GL_LINE_LOOP, 0, numSegments);
 
+        glDisableVertexAttribArray(0);
         glDeleteBuffers(1, &circleVBO);
         free(circleVertices);
     }
@@ -238,6 +243,7 @@ void draw_container(mfloat_t* containerPos, int containerType) {
     glBindVertexArray(0);
     glUseProgram(0);
 }
+
 
 void draw_particles(int activeParticles, float* positions) {
     // Update instance VBO with positions
@@ -262,18 +268,19 @@ void draw_particles(int activeParticles, float* positions) {
 void update_projection(int window_width, int window_height) {
     float projection[16];
     ortho(0.0f, (float)window_width, 0.0f, (float)window_height, -1.0f, 1.0f, projection);
-
     glUseProgram(shaderProgram);
     GLint projLoc = glGetUniformLocation(shaderProgram, "uProjection");
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, projection);
     glUseProgram(0);
 }
 
+
 void cleanup_renderer() {
-    glDeleteProgram(shaderProgram);
     glDeleteBuffers(1, &circleVBO);
     glDeleteBuffers(1, &instanceVBO);
     glDeleteVertexArrays(1, &VAO);
+    glDeleteProgram(shaderProgram);
 }
+
 
 
