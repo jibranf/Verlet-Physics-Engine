@@ -88,17 +88,16 @@ int main(void) {
     glewExperimental = GL_TRUE;
     glewInit();
 
-    // get version info
-    const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
-    const GLubyte* version = glGetString(GL_VERSION); // version as a string
-    printf("Renderer: %s\n", renderer);
-    printf("OpenGL version supported %s\n", version);
+    // // get version info
+    // const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
+    // const GLubyte* version = glGetString(GL_VERSION); // version as a string
+    // printf("Renderer: %s\n", renderer);
+    // printf("OpenGL version supported %s\n", version);
 
 
-    /* OpenGL Settings */
+    // open gl settings
     glClearColor(0.05, 0.05, 0.05, 1.0); // window background color
     glClearStencil(0);
-
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
