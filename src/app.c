@@ -6,8 +6,8 @@
 #include "physics.h"
 #include <time.h>
 
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
 
 #define PARTICLE_SPAWN_X WINDOW_WIDTH/3
 #define PARTICLE_SPAWN_Y WINDOW_HEIGHT/3
@@ -17,7 +17,7 @@
 
 #define SUBSTEPS 8
 
-#define CONTAINER 0 // box = 0, circle = 1
+#define CONTAINER 1 // box = 0, circle = 1
 
 int elapsedFrames = 0;
 
@@ -59,6 +59,10 @@ void instantiateParticles(Particle* particle_list, int numParticles) {
     }
 }
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height);
+}
+
 int main(void) {
     GLFWwindow* window;
 
@@ -67,7 +71,7 @@ int main(void) {
         return -1;
     }
 
-    
+    glfwWindowHint(GLFW_SAMPLES, 4); // anti aliasing
     window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Verlet Physics Engine", NULL, NULL);
     if (!window) {
         fprintf(stderr, "Failed to create GLFW window\n");
@@ -77,12 +81,12 @@ int main(void) {
 
     glfwMakeContextCurrent(window);
 
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSwapInterval(1);
+
     // start GLEW extension handler
-    GLenum err = glewInit();
-    if (err != GLEW_OK) {
-        fprintf(stderr, "Error initializing GLEW: %s\n", glewGetErrorString(err));
-        return -1;
-    }
+    glewExperimental = GL_TRUE;
+    glewInit();
 
     // get version info
     const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
@@ -90,7 +94,14 @@ int main(void) {
     printf("Renderer: %s\n", renderer);
     printf("OpenGL version supported %s\n", version);
 
-    glfwSwapInterval(1);
+
+    /* OpenGL Settings */
+    glClearColor(0.05, 0.05, 0.05, 1.0); // window background color
+    glClearStencil(0);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
 
     init_window(WINDOW_WIDTH, WINDOW_HEIGHT);
     mfloat_t containerPos[VEC2_SIZE] = {WINDOW_WIDTH/2, WINDOW_HEIGHT/2};
@@ -115,11 +126,10 @@ int main(void) {
             spawnTimer = 0.0;
         }
         
-        if (elapsedFrames % 60 == 0) {
-            sprintf(title, "FPS : %-4.0f | Particles : %-10d", 1.0 / dt, activeParticles);
-            glfwSetWindowTitle(window, title);
-        }
-
+        // fps counter
+        sprintf(title, "FPS : %-4.0f | Particles : %-10d", 1.0 / dt, activeParticles);
+        glfwSetWindowTitle(window, title);
+        
         // update its physics
         float sub_dt = dt / SUBSTEPS;
         for (int i = 0; i < SUBSTEPS; i++) {
@@ -129,7 +139,7 @@ int main(void) {
             updateParticlePositions(activeParticles, sub_dt);
         }
 
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         // drawing container and each particle
         draw_container(containerPos, CONTAINER);

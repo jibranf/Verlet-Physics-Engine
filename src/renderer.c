@@ -15,8 +15,8 @@ void init_window(int width, int height) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, width, height, 0, -1, 1);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    // glMatrixMode(GL_MODELVIEW);
+    // glLoadIdentity();
 }
 
 void draw_container(mfloat_t* containerPos, int container) {
@@ -31,20 +31,16 @@ void draw_container(mfloat_t* containerPos, int container) {
         glEnd();
     }
     if (container == 1) { // draw circle
-        float theta = PI * 2 / 360.0;
-        float tangential_factor = tanf(theta);
-        float radial_factor = cosf(theta);
-        float x = CONTAINER_SIZE; // radius
-        float y = 0;
         glBegin(GL_LINE_LOOP);
-        for (int i = 0; i < 360; i++) {
-            glVertex2f((window_width / 2) + x, (window_height / 2) + y);
-            float tx = -y;
-            float ty = x;
-            x += tx * tangential_factor;
-            y += ty * tangential_factor;
-            x *= radial_factor;
-            y *= radial_factor;
+        for(int i = 0; i < 360; i++)
+        {
+            float theta = 2.0f * PI * (float)i / (float)360;
+
+            float cx = CONTAINER_SIZE * cosf(theta);
+            float cy = CONTAINER_SIZE * sinf(theta);
+
+            glVertex2f(containerPos[0] + cx, containerPos[1] + cy);
+
         }
         glEnd();
     }
@@ -53,10 +49,15 @@ void draw_container(mfloat_t* containerPos, int container) {
 void draw_particle(float x, float y, float radius) {
     glColor3f(0.5f, 0.8f, 1.0f);  // Light blue color
     glBegin(GL_TRIANGLE_FAN);
-    glVertex2f(x, y);
-    for (int i = 0; i <= 360; i++) {
-        float radian = i * (PI / 180.0f);
-        glVertex2f(x + cos(radian) * radius, y + sin(radian) * radius);
+    for(int i = 0; i < 15; i++)
+    {
+        float theta = 2.0f * PI * (float)i / (float)15;
+
+        float cx = radius * cosf(theta);
+        float cy = radius * sinf(theta);
+
+        glVertex2f(x + cx, y + cy);
+
     }
     glEnd();
 }
