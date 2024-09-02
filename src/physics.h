@@ -5,7 +5,7 @@
 
 #define NUM_PARTICLES 1000
 #define PARTICLE_RADIUS 5.0f
-#define GRAVITY 1000.0f
+#define GRAVITY -1000.0f
 #define CONTAINER_SIZE 350
 #define CONTAINER_BORDER_WIDTH 1
 
@@ -15,7 +15,6 @@ typedef struct {
     mfloat_t acceleration[VEC2_SIZE];
     mfloat_t radius;
 } Particle;
-
 
 extern Particle particles[NUM_PARTICLES];
 
