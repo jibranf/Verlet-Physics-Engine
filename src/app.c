@@ -8,18 +8,15 @@
 #include <time.h>
 #include <string.h>
 
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 720
-
-#define PARTICLE_SPAWN_X (WINDOW_WIDTH / 3)
-#define PARTICLE_SPAWN_Y (WINDOW_HEIGHT / 3)
+#define PARTICLE_SPAWN_X (WINDOW_WIDTH / 4)
+#define PARTICLE_SPAWN_Y (WINDOW_HEIGHT)
 
 #define TARGET_FPS 60.0
 #define SPAWN_DELAY 0.01
 
 #define SUBSTEPS 8
 
-#define CONTAINER 1 // box = 0, circle = 1
+#define CONTAINER 0 // box = 0, circle = 1
 
 int elapsedFrames = 0;
 
@@ -55,7 +52,7 @@ void instantiateParticles(Particle* particle_list, int numParticles) {
         // ===== STREAM =====
         int distance = 7.0f;
         mfloat_t x = PARTICLE_SPAWN_X + ((i) % distance - distance / 2);
-        mfloat_t y = PARTICLE_SPAWN_Y + 4.0f;
+        mfloat_t y = PARTICLE_SPAWN_Y;
         mfloat_t xp = x * 0.995;
         mfloat_t yp = y * 0.998;
         vec2(p->curr_position, x, y);
@@ -101,7 +98,7 @@ int main(void) {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // Enable V-Sync
-    //glfwSwapInterval(1);
+    glfwSwapInterval(1);
 
     // Initialize GLEW after making context current
     glewExperimental = GL_TRUE;
@@ -125,6 +122,14 @@ int main(void) {
     glClearStencil(0);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+
+    glEnable(GL_CULL_FACE); // cull face
+    glCullFace(GL_BACK); // cull back face
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    //glPointSize(2.0);
 
     // Initialize the renderer for instanced rendering
     init_renderer(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -181,9 +186,6 @@ int main(void) {
         // Clear buffers
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        // Draw the container
-        draw_container(containerPos, CONTAINER);
-
         // Prepare instance data (positions of active particles)
         for (int i = 0; i < activeParticles; i++) {
             instanceData[2 * i] = particles[i].curr_position[0];
@@ -193,6 +195,9 @@ int main(void) {
         // Draw particles using instanced rendering
         draw_particles(activeParticles, instanceData);
 
+        // Draw container
+        draw_container(containerPos, CONTAINER);
+        
         // Swap buffers and poll for events
         glfwSwapBuffers(window);
         glfwPollEvents();

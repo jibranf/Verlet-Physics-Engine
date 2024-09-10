@@ -3,6 +3,9 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#define WINDOW_WIDTH 1536
+#define WINDOW_HEIGHT 864
+
 void draw_container(mfloat_t* containerPos, int container);
 
 // Initializes the renderer with the given window dimensions

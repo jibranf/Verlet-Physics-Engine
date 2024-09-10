@@ -9,7 +9,7 @@
 #define PI 3.14159265358979323846
 
 // Number of segments to approximate a circle
-#define CIRCLE_SEGMENTS 36
+#define CIRCLE_SEGMENTS 15
 
 // Shader sources
 const char* vertexShaderSource = 
@@ -175,10 +175,11 @@ void init_renderer(int window_width, int window_height) {
 
     // Set color uniform to light blue for particles
     GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
-    glUniform3f(colorLoc, 0.678f, 0.847f, 0.902f); // Light blue color (RGB: 173, 216, 230)
+    glUniform3f(colorLoc, 0.678f, 0.847f, 0.902f);
 
     glUseProgram(0);
 }
+
 
 
 void draw_container(mfloat_t* containerPos, int containerType) {
@@ -246,21 +247,25 @@ void draw_container(mfloat_t* containerPos, int containerType) {
 
 
 void draw_particles(int activeParticles, float* positions) {
-    // Update instance VBO with positions
-    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, activeParticles * 2 * sizeof(GLfloat), positions);
-
-    // Use shader program
     glUseProgram(shaderProgram);
 
-    // Bind VAO
+    float projection[16];
+    ortho(0.0f, (float)WINDOW_WIDTH, 0.0f, (float)WINDOW_HEIGHT, -1.0f, 1.0f, projection);
+
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "uProjection"), 1, GL_FALSE, projection);
+
+    // Set color to light blue for particles
+    glUniform3f(glGetUniformLocation(shaderProgram, "uColor"), 0.5f, 0.8f, 1.f);
+
     glBindVertexArray(VAO);
 
+    // Update instance VBO with positions
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, activeParticles * 2 * sizeof(float), positions);
+
     // Draw instanced particles
-    // Each particle is rendered as a triangle fan
     glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_SEGMENTS + 2, activeParticles);
 
-    // Unbind VAO and shader program
     glBindVertexArray(0);
     glUseProgram(0);
 }
