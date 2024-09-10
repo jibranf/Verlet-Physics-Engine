@@ -118,7 +118,7 @@ int main(void) {
     */
 
     // OpenGL settings
-    glClearColor(0.05, 0.05, 0.05, 1.0); // window background color
+    glClearColor(0.15, 0.15, 0.15, 1.0); // window background color
     glClearStencil(0);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
