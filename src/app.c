@@ -34,7 +34,8 @@ void instantiateParticles(Particle* particle_list, int numParticles) {
         // vec2(p->curr_position, x, y);
         // vec2(p->old_position, x, y);
         // vec2(p->acceleration, 0, 0);
-        // p->radius = PARTICLE_RADIUS;        
+        // p->radius = PARTICLE_RADIUS;
+        // p->next = NULL;        
 
         // ====== DEFAULT ALTERNATING ===========
         // mfloat_t x = PARTICLE_SPAWN_X;
@@ -48,6 +49,7 @@ void instantiateParticles(Particle* particle_list, int numParticles) {
         // vec2(p->old_position, x, y);
         // vec2(p->acceleration, 0, 0);
         // p->radius = PARTICLE_RADIUS;
+        // p->next = NULL;
 
         // ===== STREAM =====
         int distance = 7.0f;
@@ -59,6 +61,7 @@ void instantiateParticles(Particle* particle_list, int numParticles) {
         vec2(p->old_position, xp, yp);
         vec2(p->acceleration, 0, 0);
         p->radius = PARTICLE_RADIUS;
+        p->next = NULL;
     }
 }
 
@@ -67,6 +70,7 @@ void update_projection(int window_width, int window_height);
 
 // Callback to handle window resizing
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    (void)window; // Explicitly ignore the window parameter
     glViewport(0, 0, width, height);
     update_projection(width, height);
 }
@@ -133,6 +137,9 @@ int main(void) {
 
     // Initialize the renderer for instanced rendering
     init_renderer(WINDOW_WIDTH, WINDOW_HEIGHT);
+    
+    // initialize the grid
+    initGrid();
 
     // Initialize container position
     mfloat_t containerPos[VEC2_SIZE] = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
@@ -213,7 +220,7 @@ int main(void) {
     // Clean up allocated memory and renderer resources
     free(instanceData);
     cleanup_renderer();
-
+    cleanupGrid();
     // Terminate GLFW
     glfwTerminate();
     return 0;
