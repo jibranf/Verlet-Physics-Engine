@@ -12,7 +12,7 @@
 #define PARTICLE_SPAWN_Y (WINDOW_HEIGHT)
 
 #define TARGET_FPS 60.0
-#define SPAWN_DELAY 0.01
+#define SPAWN_DELAY 0.05
 
 #define SUBSTEPS 8
 
@@ -20,13 +20,13 @@
 
 int elapsedFrames = 0;
 
-// Declare particles array (assuming it's defined in physics.h)
-extern Particle particles[NUM_PARTICLES];
+Particle* particles = NULL;  // Declare as a pointer
 
 // Function to instantiate particles (no changes needed here)
-void instantiateParticles(Particle* particle_list, int numParticles) {
+void instantiateParticles(int numParticles) {
+    particles = (Particle*)malloc(NUM_PARTICLES * sizeof(Particle));  // Allocate memory dynamically
     for (int i = 0; i < numParticles; i++) {
-        Particle* p = &(particle_list[i]);
+        Particle* p = &(particles[i]);
 
         // ====== DEFAULT ======
         // mfloat_t x = PARTICLE_SPAWN_X + 300;
@@ -52,10 +52,10 @@ void instantiateParticles(Particle* particle_list, int numParticles) {
         // p->next = NULL;
 
         // ===== STREAM =====
-        int distance = 7.0f;
+        int distance = 2.0f;
         mfloat_t x = PARTICLE_SPAWN_X + ((i) % distance - distance / 2);
         mfloat_t y = PARTICLE_SPAWN_Y;
-        mfloat_t xp = x * 0.995;
+        mfloat_t xp = x * 1.01;
         mfloat_t yp = y * 0.998;
         vec2(p->curr_position, x, y);
         vec2(p->old_position, xp, yp);
@@ -63,6 +63,10 @@ void instantiateParticles(Particle* particle_list, int numParticles) {
         p->radius = PARTICLE_RADIUS;
         p->next = NULL;
     }
+}
+
+void cleanupParticles() {
+    free(particles);  // Clean up allocated memory
 }
 
 // Forward declaration of projection update
@@ -133,7 +137,7 @@ int main(void) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    //glPointSize(2.0);
+    glPointSize(2.0);
 
     // Initialize the renderer for instanced rendering
     init_renderer(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -145,7 +149,7 @@ int main(void) {
     mfloat_t containerPos[VEC2_SIZE] = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
 
     // Instantiate all particles (initial setup)
-    instantiateParticles(particles, NUM_PARTICLES);
+    instantiateParticles(NUM_PARTICLES);
     int activeParticles = 0;
     float spawnTimer = 0.0;
 
@@ -172,7 +176,7 @@ int main(void) {
 
         // Update spawn timer and activate particles based on target FPS and spawn delay
         spawnTimer += dt;
-        if (1.0 / dt >= TARGET_FPS - 0.1 && spawnTimer >= SPAWN_DELAY && activeParticles < NUM_PARTICLES) {
+        if (1.0 / dt >= TARGET_FPS - 0.01 && spawnTimer >= SPAWN_DELAY && activeParticles < NUM_PARTICLES) {
             activeParticles += 1;
             spawnTimer = 0.0;
         }
@@ -185,8 +189,11 @@ int main(void) {
         float sub_dt = dt / SUBSTEPS;
         for (int i = 0; i < SUBSTEPS; i++) {
             applyGravity(activeParticles);
-            applyContainerConstraints(activeParticles, containerPos, CONTAINER);
+            
             detectCollisions(activeParticles);
+
+            applyContainerConstraints(activeParticles, containerPos, CONTAINER);
+
             updateParticlePositions(activeParticles, sub_dt);
         }
 
@@ -221,6 +228,7 @@ int main(void) {
     free(instanceData);
     cleanup_renderer();
     cleanupGrid();
+    cleanupParticles();
     // Terminate GLFW
     glfwTerminate();
     return 0;

@@ -23,7 +23,7 @@ typedef struct Particle {
     struct Particle* next; // For linked list in grid cells
 } Particle;
 
-extern Particle particles[NUM_PARTICLES];
+extern Particle* particles;
 extern Particle** grid;
 
 void updateParticlePositions(int activeParticles, float dt);

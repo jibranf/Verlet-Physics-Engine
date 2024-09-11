@@ -3,7 +3,6 @@
 #include <time.h>
 #include <stdio.h>
 
-Particle particles[NUM_PARTICLES];
 Particle** grid = NULL;
 
 void initGrid() {
@@ -48,10 +47,12 @@ void updateGrid(int activeParticles) {
 }
 
 void updateParticlePositions(int activeParticles, float dt) {
+    float damping = 0.998f; // Damping factor (close to 1 means low damping)
     for (int i = 0; i < activeParticles; i++) {
         Particle *p = &(particles[i]);
         mfloat_t velocity[VEC2_SIZE];
         vec2_subtract(velocity, p->curr_position, p->old_position);
+        vec2_multiply_f(velocity, velocity, damping); // Apply damping to velocity
         vec2_assign(p->old_position, p->curr_position);
         vec2_multiply_f(p->acceleration, p->acceleration, dt * dt);
         vec2_add(p->curr_position, p->curr_position, velocity);
@@ -69,7 +70,7 @@ void applyGravity(int activeParticles) {
 void applyContainerConstraints(int activeParticles, mfloat_t* containerPos, int container) {
     for (int i = 0; i < activeParticles; i++) {
         Particle* p = &(particles[i]);
-        float responseFactor = 0.75;
+        float responseFactor = 0.5;
         if (container == 0) {
             // handle box container collisions
             if (p->curr_position[0] < (containerPos[0] - CONTAINER_SIZE + CONTAINER_BORDER_WIDTH + p->radius)) {
@@ -113,11 +114,12 @@ void fixCollisions(Particle* p1, Particle* p2) {
     mfloat_t collision_axis[VEC2_SIZE];
     vec2_subtract(collision_axis, p1->curr_position, p2->curr_position);
     mfloat_t dist = vec2_length(collision_axis);
+    const float epsilon = 0.001f;  // Small threshold to avoid jitter
     if (dist < (p1->radius + p2->radius)) {
         mfloat_t norm[VEC2_SIZE];
         vec2_divide_f(norm, collision_axis, dist);
-        mfloat_t delta = (p1->radius + p2->radius) - dist;
-        vec2_multiply_f(norm, norm, 0.5f * 0.75f * delta);
+        mfloat_t delta = 0.5 * 0.75 * ((p1->radius + p2->radius) - dist);
+        vec2_multiply_f(norm, norm, delta);
         vec2_add(p1->curr_position, p1->curr_position, norm);
         vec2_subtract(p2->curr_position, p2->curr_position, norm);
     }
