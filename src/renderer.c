@@ -9,7 +9,7 @@
 #define PI 3.14159265358979323846
 
 // Number of segments to approximate a circle
-#define CIRCLE_SEGMENTS 32
+#define CIRCLE_SEGMENTS 15
 
 // Shader sources
 const char* vertexShaderSource = 

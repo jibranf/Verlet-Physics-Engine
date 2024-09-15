@@ -47,7 +47,7 @@ void updateGrid(int activeParticles) {
 }
 
 void updateParticlePositions(int activeParticles, float dt) {
-    float damping = 0.998f; // Damping factor (close to 1 means low damping)
+    float damping = 0.999f; // Damping factor (close to 1 means low damping)
     for (int i = 0; i < activeParticles; i++) {
         Particle *p = &(particles[i]);
         mfloat_t velocity[VEC2_SIZE];
@@ -70,7 +70,7 @@ void applyGravity(int activeParticles) {
 void applyContainerConstraints(int activeParticles, mfloat_t* containerPos, int container) {
     for (int i = 0; i < activeParticles; i++) {
         Particle* p = &(particles[i]);
-        float responseFactor = 0.5;
+        float responseFactor = 0.45;
         if (container == 0) {
             // handle box container collisions
             if (p->curr_position[0] < (containerPos[0] - CONTAINER_SIZE + CONTAINER_BORDER_WIDTH + p->radius)) {
@@ -115,7 +115,7 @@ void fixCollisions(Particle* p1, Particle* p2) {
     vec2_subtract(collision_axis, p1->curr_position, p2->curr_position);
     mfloat_t dist = vec2_length(collision_axis);
     const float epsilon = 0.001f;  // Small threshold to avoid jitter
-    if (dist < (p1->radius + p2->radius)) {
+    if (dist < (p1->radius + p2->radius) - epsilon) {
         mfloat_t norm[VEC2_SIZE];
         vec2_divide_f(norm, collision_axis, dist);
         mfloat_t delta = 0.5 * 0.75 * ((p1->radius + p2->radius) - dist);

@@ -3,10 +3,10 @@
 
 #include "mathc.h"
 
-#define NUM_PARTICLES 5000
+#define NUM_PARTICLES 2000
 #define PARTICLE_RADIUS 3.0f
-#define GRAVITY -1000.0f
-#define CONTAINER_SIZE 400
+#define GRAVITY -980.0f
+#define CONTAINER_SIZE 350
 #define CONTAINER_BORDER_WIDTH 1
 
 // Grid-related definitions

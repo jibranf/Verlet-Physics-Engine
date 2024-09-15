@@ -176,7 +176,7 @@ int main(void) {
 
         // Update spawn timer and activate particles based on target FPS and spawn delay
         spawnTimer += dt;
-        if (1.0 / dt >= TARGET_FPS - 0.01 && spawnTimer >= SPAWN_DELAY && activeParticles < NUM_PARTICLES) {
+        if (1.0 / dt >= TARGET_FPS - 1 && spawnTimer >= SPAWN_DELAY && activeParticles < NUM_PARTICLES) {
             activeParticles += 1;
             spawnTimer = 0.0;
         }
